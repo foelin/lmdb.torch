@@ -1,5 +1,10 @@
 require 'lmdb'
 
+
+--[[
+	txn/cursor put/get test
+]]--
+
 local db= lmdb.env{
     Path = './testDB',
     Name = 'testDB'
@@ -14,7 +19,11 @@ local x=torch.rand(num,100)
 
 -------Write-------
 for i=1,num do
-    txn:put(i,x[i])
+    if i%2 == 0 then
+    	cursor:put(i,x[i])
+	else
+		txn:put(i,x[i])
+	end
 end
 txn:commit()
 print(db:stat()) -- Current status
