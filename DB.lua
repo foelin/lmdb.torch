@@ -102,7 +102,7 @@ local txn = torch.class('lmdb.txn')
 
 function txn:__init(env_obj, rdonly, parent_txn)
     self.mdb_txn = ffi.new('MDB_txn *[1]')
-    
+    self.pointer_record = {}
 
     self.__MDB_val = function(...)
       local mdb_val, p = lmdb.MDB_val(...)
