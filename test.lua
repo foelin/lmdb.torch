@@ -17,6 +17,7 @@ for i=1,num do
     txn:put(i,x[i])
 end
 txn:commit()
+print(db:stat()) -- Current status
 
 local reader = db:txn(true) --Read-only transaction
 local y = torch.Tensor(num,100)

@@ -102,11 +102,11 @@ local txn = torch.class('lmdb.txn')
 
 function txn:__init(env_obj, rdonly, parent_txn)
     self.mdb_txn = ffi.new('MDB_txn *[1]')
-    self.pointer_record = {}
+    
 
     self.__MDB_val = function(...)
       local mdb_val, p = lmdb.MDB_val(...)
-      --self.pointer_record[#self.pointer_record + 1] = p
+      self.pointer_record[#self.pointer_record + 1] = p
       return mdb_val
     end
     local function destroy_txn(x)
@@ -158,6 +158,8 @@ end
 
 function txn:put(key, data, flag)
     local flag = flag or 0
+    
+
     self.mdb_key = self.__MDB_val(self.mdb_key, key, true) --Keys are always strings
     self.mdb_data = self.__MDB_val(self.mdb_data, data)
     return lmdb.errcheck('mdb_put', self.mdb_txn[0], self.mdb_dbi[0], self.mdb_key, self.mdb_data, flag)
@@ -169,7 +171,7 @@ end
 
 function txn:get(key, binary)
     local binary = binary or false
-    self.mdb_key = self.__MDB_val(self.mdb_key, key, true)
+    self.mdb_key = lmdb.MDB_val(self.mdb_key, key, true)
     self.mdb_data = self.mdb_data or ffi.new('MDB_val[1]')
     if lmdb.errcheck('mdb_get', self.mdb_txn[0], self.mdb_dbi[0], self.mdb_key,self.mdb_data) == lmdb.C.MDB_NOTFOUND then
         return nil
@@ -227,7 +229,7 @@ end
 
 function cursor:set(key)
     local op  = lmdb.C.MDB_SET
-    self.mdb_key = self.__MDB_val(self.mdb_key, key, true)
+    self.mdb_key = lmdb.MDB_val(self.mdb_key, key, true)
 
     if lmdb.errcheck('mdb_cursor_get', self.mdb_cursor[0], self.mdb_key, nil, op) == lmdb.C.MDB_NOTFOUND then
         return false
